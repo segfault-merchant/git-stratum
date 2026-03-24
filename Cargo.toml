@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+chrono = "0.4.44"
+git2 = { version = "0.20.4", features = ["https", "ssh"] }
+openssl = { version = "0.10", features = ["vendored"] }
+
+[dev-dependencies]
+mockall = "0.14.0"
+sha1 = "0.10.6"
