@@ -1,13 +1,28 @@
 [package]
 name = "stratum"
 version = "0.1.0"
+authors = ["Jordan Morris <165378667+jordan-314@users.noreply.github.com>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["git"]
+repository = "https://github.com/jordan-314/git-stratum"
+documentation = "https://docs.rs/git-stratum"
+description = """
+High(er) level repository for mining other git repositories, this library
+abstracts git2-rs for efficient processing.
+"""
+categories = ["git", "repository mining"]
 edition = "2024"
+
 
 [dependencies]
 chrono = "0.4.44"
 git2 = { version = "0.20.4", features = ["https", "ssh"] }
 openssl = { version = "0.10", features = ["vendored"] }
+thiserror = "2.0.18"
 
 [dev-dependencies]
 mockall = "0.14.0"
 sha1 = "0.10.6"
+tempfile = "3.27.0"
+todo = "0.3.0"
