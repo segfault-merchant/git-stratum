@@ -4,26 +4,25 @@ use thiserror::Error;
 
 pub mod actor;
 pub mod commit;
-pub mod remote;
 pub mod repository;
 
-pub use actor::MinedActor;
-pub use commit::MinedCommit;
+pub use actor::Actor;
+pub use commit::Commit;
 pub use repository::Repository;
 
 #[derive(Debug, Error)]
-pub enum StratumError {
+pub enum Error {
     /// An abstraction of git2::Error to raise the error effectively
-    #[error("{0}")]
-    GitError(git2::Error),
+    #[error(transparent)]
+    Git(#[from] git2::Error),
 
     /// An abstraction of git-url-parse::GitUrlParseError
-    #[error("{0}")]
-    GitUrlError(GitUrlParseError),
+    #[error(transparent)]
+    GitUrlError(#[from] GitUrlParseError),
 
     /// If a URL can be parsed but is not a valid GitUrl schem
-    #[error("Invalid scheme: {0}")]
-    GitUrlSchemeError(String),
+    #[error("URL scheme was {0}, cannot clone URL.")]
+    UrlScheme(String),
 
     /// An error associated with a bad path
     #[error("{0}")]

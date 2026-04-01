@@ -1,6 +1,8 @@
 // Integration tests associated with repository.rs
 
 mod common;
+use std::str::FromStr;
+
 use common::make_repo;
 
 use stratum::{MinedActor, MinedCommit, Repository, repository::RepositoryMiner};
@@ -8,14 +10,14 @@ use stratum::{MinedActor, MinedCommit, Repository, repository::RepositoryMiner};
 #[test]
 fn init_repo_from_path() {
     let repo_path = make_repo();
-    Repository::from_path(repo_path.path().to_str().unwrap()).expect("Failed to open as repo");
+    Repository::from_str(repo_path.path().to_str().unwrap()).expect("Failed to open as repo");
 }
 
 #[test]
 fn test_commit_traversal() {
     let repo_path = make_repo();
     let repo =
-        Repository::from_path(repo_path.path().to_str().unwrap()).expect("Failed to open as repo");
+        Repository::from_str(repo_path.path().to_str().unwrap()).expect("Failed to open as repo");
 
     // Expecting an iter of length one
     let iter = repo.iter_commits().expect("Iterator Error");
