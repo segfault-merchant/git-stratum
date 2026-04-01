@@ -28,18 +28,15 @@ pub trait MinedCommit<'a> {
 }
 
 /// A singular git commit for the repository being inspected
-#[allow(dead_code)]
-pub(crate) struct Commit<'a>(git2::Commit<'a>);
+pub struct Commit<'a>(git2::Commit<'a>);
 
 impl<'a> Commit<'a> {
     /// Instantiate a new Commit object from a git2 commit
-    #[allow(dead_code)]
     pub fn new(c: git2::Commit<'a>) -> Self {
         Self(c)
     }
 
     /// Instantiate a new commit object from it's oid
-    #[allow(dead_code)]
     pub fn from_oid(repo: &'a Repository, oid: Oid) -> Result<Self, git2::Error> {
         Ok(Self(repo.find_commit(oid)?))
     }

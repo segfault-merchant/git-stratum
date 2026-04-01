@@ -14,12 +14,10 @@ pub trait MinedActor {
 }
 
 /// A git actor who exists for the inspected repository
-#[allow(dead_code)]
-pub(crate) struct Actor<'a>(Signature<'a>);
+pub struct Actor<'a>(Signature<'a>);
 
 impl<'a> Actor<'a> {
     /// Instantiate a new Actor from their signature
-    #[allow(dead_code)]
     pub fn new(s: Signature<'a>) -> Self {
         Self(s)
     }
