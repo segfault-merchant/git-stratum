@@ -107,3 +107,23 @@ impl Repository<Remote> {
         })
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use tempfile::{NamedTempFile, TempDir};
+
+    #[test]
+    fn test_fail_on_bad_dir() {
+        let fp = NamedTempFile::new().expect("Failed to make tempfile");
+        assert!(Repository::<Local>::new(fp.path()).is_err())
+    }
+
+    #[test]
+    fn test_fail_on_bad_git_dir() {
+        let dir = TempDir::new().expect("Failed to make tempdir");
+        assert!(Repository::<Local>::new(dir.path()).is_err())
+    }
+
+    //TODO: Should I test cloning and so on here or in integration tests?
+}
