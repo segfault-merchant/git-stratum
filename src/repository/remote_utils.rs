@@ -18,10 +18,9 @@ where
         Some(p) => p.as_ref().to_path_buf(),
         None => {
             // For a repository structure such as https://github.com/jordan-314/git-stratum/tree/main
-            // the path begins after the `github.com/`. Therefore, the repo's name
-            // should always be the second (index 1) item in the path when split
-            // on the slashes.
-            let repo_name = url.path().split('/').collect::<Vec<&str>>()[1];
+            // the path begins after the `/`. When split this will create the format
+            // ["", "Owner", "Name", ...]
+            let repo_name = url.path().split('/').collect::<Vec<&str>>()[2];
             PathBuf::from_str("/tmp").unwrap().join(repo_name)
         }
     }
@@ -83,8 +82,9 @@ mod test {
         assert_eq!(resolve_destination(&url, None::<&str>), expected_path);
     }
 
-    #[test]
+    //TODO: How to test SSH clone properly??
+    #[allow(dead_code)]
     fn test_ssh_clone() {
-        todo!()
+        todo!();
     }
 }
