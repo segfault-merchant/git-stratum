@@ -43,7 +43,7 @@ impl Repository<Local> {
     }
 
     #[allow(dead_code)]
-    fn iter_commits<'repo>(
+    pub fn iter_commits<'repo>(
         &'repo self,
     ) -> Result<impl Iterator<Item = Result<Commit<'repo>, git2::Error>> + 'repo, git2::Error> {
         CommitIterator::new(&self.git_repo)

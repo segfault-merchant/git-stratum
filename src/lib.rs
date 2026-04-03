@@ -8,7 +8,7 @@ pub mod repository;
 
 pub use actor::Actor;
 pub use commit::Commit;
-pub use repository::Repository;
+pub use repository::{Local, Remote, Repository};
 
 #[derive(Debug, Error)]
 pub enum Error {
