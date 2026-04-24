@@ -2,6 +2,7 @@ use crate::Actor;
 // use crate::Error;
 
 /// A singular git commit for the repository being inspected
+#[derive(Debug, Clone)]
 pub struct Commit<'a> {
     inner: git2::Commit<'a>,
 }
