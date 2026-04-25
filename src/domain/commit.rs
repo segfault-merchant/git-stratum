@@ -104,4 +104,152 @@ impl<'repo> Commit<'repo> {
     }
 }
 
-//TODO: Unit test the private functions, requires context of the repository, how?
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::common::{EXPECTED_ACTOR_EMAIL, EXPECTED_ACTOR_NAME, EXPECTED_MSG, init_repo};
+
+    #[test]
+    fn test_msg() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert_eq!(commit.msg().unwrap(), EXPECTED_MSG.to_string());
+    }
+
+    #[test]
+    fn test_author() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert_eq!(
+            commit.author().name().unwrap(),
+            EXPECTED_ACTOR_NAME.to_string()
+        );
+        assert_eq!(
+            commit.author().email().unwrap(),
+            EXPECTED_ACTOR_EMAIL.to_string()
+        );
+    }
+
+    #[test]
+    fn test_committer() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert_eq!(
+            commit.committer().name().unwrap(),
+            EXPECTED_ACTOR_NAME.to_string()
+        );
+        assert_eq!(
+            commit.committer().email().unwrap(),
+            EXPECTED_ACTOR_EMAIL.to_string()
+        );
+    }
+
+    #[test]
+    fn test_parents() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert!(commit.parents().collect::<Vec<String>>().is_empty());
+    }
+
+    #[test]
+    fn test_is_merge() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert!(!commit.is_merge());
+    }
+
+    #[test]
+    fn test_insertions() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert_eq!(commit.insertions().unwrap(), 1)
+    }
+
+    #[test]
+    fn test_deletions() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert_eq!(commit.deletions().unwrap(), 0)
+    }
+
+    #[test]
+    fn test_lines() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        assert_eq!(commit.lines().unwrap(), 1)
+    }
+
+    #[test]
+    fn test_stat() {
+        let repo = init_repo();
+        let git_commit = repo
+            .raw()
+            .head()
+            .expect("Expected a valid reference")
+            .peel_to_commit()
+            .expect("Expected a valid git2 commit");
+        let commit = Commit::new(git_commit, &repo);
+
+        // Won't compile if return type is bad, stat otherwise checked in insertions
+        // and deletions test functions
+        let _: git2::DiffStats = commit
+            .stats()
+            .expect("Failed to construct git2 Stats object");
+    }
+}

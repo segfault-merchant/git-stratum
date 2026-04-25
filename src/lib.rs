@@ -28,3 +28,61 @@ pub enum Error {
     #[error("{0}")]
     PathError(String),
 }
+
+/// Common functionality that can be imported into any and all unit tests
+/// throughout the library
+#[cfg(test)]
+mod common {
+    use once_cell::sync::Lazy;
+    use std::{fs, path::Path};
+    use tempfile::TempDir;
+
+    use super::{Local, Repository};
+
+    pub const EXPECTED_MSG: &str = "commit msg";
+    pub const EXPECTED_ACTOR_NAME: &str = "test";
+    pub const EXPECTED_ACTOR_EMAIL: &str = "test@example.com";
+
+    /// Make a repository a very basic histroy
+    fn make_repo(tmpdir: &TempDir) {
+        let repo = git2::Repository::init(tmpdir.path()).expect("Failed to init repo");
+
+        let fp = tmpdir.path().join("file.txt");
+        fs::write(&fp, "Hello World\n").expect("Failed to write to file");
+
+        // Stage file for commit
+        let mut index = repo.index().expect("Failed to get index");
+        index
+            .add_path(Path::new("file.txt"))
+            .expect("Failed to add file to index");
+        index.write().expect("Failed to write index");
+
+        let tree_id = index.write_tree().expect("Failed to write tree");
+        let tree = repo.find_tree(tree_id).expect("Failed to find tree");
+
+        // Define author and committer local to this repo
+        let sig = git2::Signature::now(EXPECTED_ACTOR_NAME, EXPECTED_ACTOR_EMAIL)
+            .expect("Failed to create actor signature");
+
+        repo.commit(Some("HEAD"), &sig, &sig, EXPECTED_MSG, &tree, &[])
+            .expect("Failed to create commit");
+    }
+
+    /// Lazily construct the test data into a temp dir that will last the length of
+    /// a single modules test span.
+    static TEST_DATA_DIR: Lazy<TempDir> = Lazy::new(|| {
+        let dir = TempDir::new().expect("Create temp dir");
+        make_repo(&dir);
+        dir
+    });
+
+    /// The path to the test data directory
+    fn test_data_dir() -> &'static Path {
+        TEST_DATA_DIR.path()
+    }
+
+    /// Init a repository object using the lazily constructed git2 repo
+    pub fn init_repo() -> Repository<Local> {
+        Repository::<Local>::new(test_data_dir()).expect("Failed to init local repository")
+    }
+}
