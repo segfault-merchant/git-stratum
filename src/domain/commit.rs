@@ -81,6 +81,11 @@ impl<'repo> Commit<'repo> {
     /// Return the git diff for the current commit within the context of a
     /// repository.
     fn diff(&self) -> Result<&git2::Diff<'repo>, Error> {
+        //TODO: mv diff calc into cache get_or_init
+        // The above TODO will require https://github.com/rust-lang/rust/issues/109737
+        // to be brought into stable, i.e. the fn OnceCell::get_or_try_init is
+        // made stable. This is because stratum::Error can't implement `Clone`
+        // because of `git2::Error` :(
         let diff = self.calculate_diff()?;
         Ok(self.cache.get_or_init(|| diff))
     }
