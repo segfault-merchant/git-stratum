@@ -4,7 +4,6 @@ use crate::Actor;
 use crate::{Error, Repository};
 
 /// A singular git commit for the repository being inspected
-// #[derive(Clone)]
 pub struct Commit<'repo> {
     inner: git2::Commit<'repo>,
     ctx: &'repo Repository,

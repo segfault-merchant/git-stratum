@@ -16,6 +16,64 @@ pub struct Local;
 /// the local filesystem and is represented via its remote url. A remote Repository
 /// upon instantiation will be cloned and returned as a Local variant such that it
 /// can be mined.
+///
+/// ## Examples
+///
+/// 1. Traversing a local repository from HEAD
+///
+/// ```no_run
+/// # use std::{path::PathBuf, str::FromStr};
+/// use stratum::{Repository, Local};
+///
+/// let p = PathBuf::from_str("~/repository/").unwrap();
+/// let repo = Repository::<Local>::new(p).unwrap();
+///
+/// for commit in repo.traverse_commits().unwrap() {
+///     let commit = commit.unwrap();
+///     println!("Commit {} was authored by {:?}", commit.hash(), commit.author().name());
+/// }
+/// ```
+///
+/// 2. Traversing a remote repository from HEAD
+///
+/// ```no_run
+/// # use std::{path::PathBuf, str::FromStr};
+/// use stratum::{Repository, Remote};
+///
+/// let repo = Repository::<Remote>::new::<PathBuf>(
+///         "https://server.example/owner/repo.git",
+///         None
+///     ).unwrap();
+/// for commit in repo.traverse_commits().unwrap() {
+///     let commit = commit.unwrap();
+///     println!("Commit {} was authored by {:?}", commit.hash(), commit.author().name());
+/// }
+/// ```
+///
+/// 3. Extracting HEAD from a local repository
+///
+/// ```no_run
+/// # use std::{path::PathBuf, str::FromStr};
+/// use stratum::{Repository, Local};
+///
+/// let p = PathBuf::from_str("~/repository/").unwrap();
+/// let repo = Repository::<Local>::new(p).unwrap();
+///
+/// println!("HEAD was authored by {:?}", repo.head().unwrap().author().name());
+/// ```
+///
+/// 4. Using the helper functions
+///
+/// ```no_run
+/// # use std::{path::PathBuf, str::FromStr};
+/// use stratum::open_repository;
+///
+/// let p = PathBuf::from_str("~/repository/").unwrap();
+/// // use clone_repository for the remote helper fucntion
+/// let repo = open_repository(p);
+///
+/// println!("HEAD was authored by {:?}", repo.unwrap().head().unwrap().author().name());
+/// ```
 pub struct Repository<Location = Local> {
     repo: git2::Repository,
     location: PhantomData<Location>,

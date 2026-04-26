@@ -2,9 +2,10 @@ use std::str::Split;
 
 use crate::Error;
 
-/// A thin wrapper around git_url_parse::GitUrl. Designed to implement only what
-/// is needed within git-stratum and to preserve the original url string parsed
-/// as it is not traditionally preserved.
+/// A thin wrapper around git_url_parse::GitUrl.
+///
+/// Designed to implement only what is needed within git-stratum and to preserve
+/// the original url string parsed as it is not traditionally preserved.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct GitUrl {
     inner: git_url_parse::GitUrl,
