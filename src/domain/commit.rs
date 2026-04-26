@@ -94,18 +94,24 @@ impl<'repo> Commit<'repo> {
     /// number of parents
     fn calculate_diff(&self) -> Result<git2::Diff<'repo>, Error> {
         let this_tree = self.inner.tree().ok();
-        let parent_tree = match self.inner.parent_count() {
-            0 => None,
-            1 => self.inner.parent(0).map_err(Error::Git)?.tree().ok(),
-            //TODO: Resolve merge commit process
-            _ => return Err(Error::PathError("Placeholder error".to_string())),
-        };
+        let parent_tree = self.resolve_parent_tree()?;
 
         self.ctx
             .raw()
             //TODO: Expose opts?
             .diff_tree_to_tree(parent_tree.as_ref(), this_tree.as_ref(), None)
             .map_err(Error::Git)
+    }
+
+    /// Resolve to the correct parent tree changing strategies based on number
+    /// of parents.
+    fn resolve_parent_tree(&self) -> Result<Option<git2::Tree<'_>>, Error> {
+        Ok(match self.inner.parent_count() {
+            0 => None,
+            1 => self.inner.parent(0).map_err(Error::Git)?.tree().ok(),
+            //TODO: Resolve merge commit process
+            _ => return Err(Error::PathError("Placeholder error".to_string())),
+        })
     }
 }
 
