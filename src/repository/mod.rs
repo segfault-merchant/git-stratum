@@ -4,7 +4,9 @@ use crate::{Commit, Error, GitUrl};
 
 mod utils;
 
+/// Unit struct indicating that a repository is remote to the file system
 pub struct Remote;
+/// Unit struct indicating that a repository is local to the file system
 pub struct Local;
 
 /// A Git Repository which can be mined.
