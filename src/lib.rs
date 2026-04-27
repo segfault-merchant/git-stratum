@@ -1,6 +1,6 @@
 use std::path::Path;
 
-// For now include everything as pub mod to get errors in IDE.
+// For now include everything as pub mod to get errors in IDE
 use git_url_parse::GitUrlParseError;
 use thiserror::Error;
 
