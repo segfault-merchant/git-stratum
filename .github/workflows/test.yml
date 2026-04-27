@@ -16,8 +16,8 @@ jobs:
           concurrent_skipping: 'never'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          # Skip actions if no change to src or tests
           paths_ignore: '["**/README.md", "**/docs/**"]'
+          # Skip actions if no change to src or tests
           paths_filter: |
             all: 
               paths:
@@ -26,7 +26,7 @@ jobs:
 
   test:
     needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true' && !fromJSON(needs.pre_job.outputs.paths_result.all).should_skip
+    if: needs.pre_job.outputs.should_skip != 'true' && !fromJSON(needs.pre_job.outputs.paths_result).all.should_skip
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -62,7 +62,7 @@ jobs:
   #TODO Can this use jobs from other files?
   success:
     name: Success gate
-    if: needs.pre_job.outputs.should_skip != 'true' && !fromJSON(needs.pre_job.outputs.paths_result.all).should_skip
+    if: needs.pre_job.outputs.should_skip != 'true' && !fromJSON(needs.pre_job.outputs.paths_result).all.should_skip
     needs:
       - test
     runs-on: ubuntu-latest
