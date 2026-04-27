@@ -84,7 +84,7 @@ mod common {
     }
 
     /// Lazily construct the test data into a temp dir that will last the length of
-    /// a single modules test span.
+    /// a single modules test span
     static TEST_DATA_DIR: Lazy<TempDir> = Lazy::new(|| {
         let dir = TempDir::new().expect("Create temp dir");
         make_repo(&dir);
