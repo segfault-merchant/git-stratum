@@ -1,0 +1,25 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    ["@semantic-release/changelog", {
+      "changelogFile": "CHANGELOG.md"
+    }],
+    ["@semantic-release/exec", {
+      "prepareCmd": "cargo set-version ${nextRelease.version} && cargo build --release"
+    }],
+    ["@semantic-release/git", {
+      "assets": ["Cargo.toml", "Cargo.lock", "CHANGELOG.md"],
+      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }],
+    ["@semantic-release/exec", {
+      "publishCmd": "cargo publish"
+    }],
+    ["@semantic-release/github", {
+      "assets": [
+        {"path": "target/release/${npm_package_name}", "label": "Binary (Linux x64)"}
+      ]
+    }]
+  ]
+}

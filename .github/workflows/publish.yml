@@ -1,22 +1,92 @@
----
+# Release to crates.io via Semantic Release
+#
+# Triggered by pushes to main branch.
+# Uses semantic-release to determine version and publish.
+#
+# Setup required:
+# 1. Create "crates-io" environment in GitHub
+# 2. Add CARGO_REGISTRY_TOKEN secret to environment
+# 3. Install semantic-release:
+#    npm install --save-dev semantic-release @semantic-release/git @semantic-release/exec @semantic-release/changelog
+# 4. Create .releaserc.json (see template below)
+
 name: Release
 
 on:
   push:
-    branches:
-      - main
-      - next
-      - next-major
-      - beta
-      - alpha
-      - "[0-9]+.[0-9]+.x"
-      - "[0-9]+.x"
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
+  # Run full test suite before release
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run checks
+        run: |
+          cargo fmt --check
+          cargo clippy -- -D warnings
+          cargo test
+
+  # Semantic release handles versioning and publishing
   release:
-    uses: semantic-release-action/rust/.github/workflows/release-library.yml@v5
-    secrets:
-      cargo-registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    name: Release
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: crates-io
+      url: https://crates.io/crates/${{ github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install cargo-edit
+        uses: taiki-e/install-action@cargo-edit
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: npx semantic-release
