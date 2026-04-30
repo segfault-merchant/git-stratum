@@ -8,7 +8,7 @@ mod domain;
 mod repository;
 mod url;
 
-pub use domain::{actor::Actor, commit::Commit};
+pub use domain::{actor::Actor, commit::Commit, mfile::ModifiedFile};
 pub use repository::{Local, Remote, Repository};
 pub use url::GitUrl;
 
