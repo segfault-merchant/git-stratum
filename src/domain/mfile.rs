@@ -1,11 +1,12 @@
+use git2::{Delta, Diff, DiffDelta, Patch};
 use std::{path::Path, sync::OnceLock};
 
 use crate::Error;
 
 /// A file that was touched in a commit
 pub struct ModifiedFile<'c> {
-    cache: OnceLock<Option<git2::Patch<'c>>>,
-    diff: &'c git2::Diff<'c>,
+    cache: OnceLock<Option<Patch<'c>>>,
+    diff: &'c Diff<'c>,
     n: usize,
 }
 
@@ -23,7 +24,7 @@ impl<'c> ModifiedFile<'c> {
     ///     let mfile = ModifiedFile::new(&diff, idx)
     /// }
     /// ```
-    pub fn new(diff: &'c git2::Diff<'_>, n: usize) -> Self {
+    pub fn new(diff: &'c Diff<'_>, n: usize) -> Self {
         ModifiedFile {
             cache: OnceLock::new(),
             diff,
@@ -42,20 +43,20 @@ impl<'c> ModifiedFile<'c> {
     }
 
     /// Return the file status of the given patch
-    pub fn status(&self) -> Option<git2::Delta> {
+    pub fn status(&self) -> Option<Delta> {
         Some(self.delta()?.status())
     }
 
     /// Return the delta associated with the index
-    fn delta(&self) -> Option<git2::DiffDelta<'_>> {
+    fn delta(&self) -> Option<DiffDelta<'_>> {
         self.diff.get_delta(self.n)
     }
 
     /// Return the patch given the diff, caching it within the struct
     //TODO: https://github.com/segfault-merchant/git-stratum/issues/32
     #[allow(dead_code)]
-    fn patch(&self) -> Result<Option<&git2::Patch<'_>>, Error> {
-        let patch = git2::Patch::from_diff(self.diff, self.n)?;
+    fn patch(&self) -> Result<Option<&Patch<'_>>, Error> {
+        let patch = Patch::from_diff(self.diff, self.n)?;
         Ok(self.cache.get_or_init(|| patch).as_ref())
     }
 }
