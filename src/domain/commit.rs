@@ -186,7 +186,7 @@ mod test {
             .expect("Expected a valid git2 commit");
         let commit = Commit::new(git_commit, &repo);
 
-        assert!(commit.parents().collect::<Vec<String>>().is_empty());
+        assert_eq!(commit.parents().collect::<Vec<String>>().len(), 1);
     }
 
     #[test]
