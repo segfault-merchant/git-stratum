@@ -18,7 +18,7 @@ Then inside of your main function:
 use stratum::open_repository;
 
 let repo = open_repository("path/to/repo").unwrap();
-for commit in repo.iter_commits().unwrap() {
+for commit in repo.traverse_commits().unwrap() {
     let commit = commit.unwrap();
     ...
 }
@@ -30,7 +30,32 @@ For more detail on the API, see the [docs]().
 
 ## Testing
 
-**credit:** The `/test-repos.zip` file was originally created by the maintainer of [PyDriller](https://github.com/ishepard/pydriller/tree/master), which is the core inspiration for this project. At the time of writing Pydriller is under the Apache2.0 license.
+### Unit Testing
+
+In `/src/lib.rs` a test specific module called `common` is defined, in here a `git2` reposiotry is lazilly made for testing purposes. This method for unit testing was chosen for several reasons:
+
+- Mocking `git2` objects would be very challenging as they do not expose any traits.
+- Lazilly constructing this repository ensures it is only made once per unit testing module.
+- This allows for the direct testing of private functions with minimal overhead/difficulty.
+
+#### Example
+
+```rust
+#[cfg(test)]
+mod test {
+    use crate::common::{init_repo};
+
+    #[test]
+    fn test_something() {
+        let repo = init_repo();
+        ...
+    }
+}
+```
+
+### Integration Testing
+
+The integration tests, will effectively function the same as the unit tests, however the data that the integration tests have access to (in `test-repos.zip`) is far more elaborate and rich, the primary goal of this design is to catch the edge cases that the unit tests miss.
 
 To write new tests:
 - Manually unzip the `test-repos.zip` choose a repository to use in testing.
@@ -47,3 +72,5 @@ fn small_repo() -> PathBuf {
 ```
 
 - The `test-repo` should only be unzipped once per test module, so if your testing fits within an existing test module, it will save some time to put the test in an existing module.
+
+**credit:** The `/test-repos.zip` file was originally created by the maintainer of [PyDriller](https://github.com/ishepard/pydriller/tree/master), which is the core inspiration for this project. At the time of writing Pydriller is under the Apache2.0 license.
