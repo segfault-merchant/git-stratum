@@ -52,8 +52,6 @@ mod common {
     use std::{fs, path::Path};
     use tempfile::TempDir;
 
-    use super::{Local, Repository};
-
     pub const EXPECTED_MSG: &str = "commit msg";
     pub const EXPECTED_ACTOR_NAME: &str = "test";
     pub const EXPECTED_ACTOR_EMAIL: &str = "test@example.com";
@@ -156,7 +154,7 @@ mod common {
     ///     - The file now contains the string "Hello World\nFile Update\n"
     /// - The commit is authored and committed by: test <test@example.com>
     /// - The commit message is: "commit msg"
-    pub fn init_repo() -> Repository<Local> {
-        Repository::<Local>::new(test_data_dir()).expect("Failed to init local repository")
+    pub fn init_repo() -> git2::Repository {
+        git2::Repository::open(test_data_dir()).expect("Failed to open temp repo")
     }
 }
