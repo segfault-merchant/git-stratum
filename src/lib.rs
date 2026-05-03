@@ -8,7 +8,7 @@ mod domain;
 mod repository;
 mod url;
 
-pub use domain::{actor::Actor, commit::Commit};
+pub use domain::{actor::Actor, commit::Commit, mfile::ModifiedFile};
 pub use repository::{Local, Remote, Repository};
 pub use url::GitUrl;
 
@@ -51,8 +51,6 @@ mod common {
     use once_cell::sync::Lazy;
     use std::{fs, path::Path};
     use tempfile::TempDir;
-
-    use super::{Local, Repository};
 
     pub const EXPECTED_MSG: &str = "commit msg";
     pub const EXPECTED_ACTOR_NAME: &str = "test";
@@ -156,7 +154,7 @@ mod common {
     ///     - The file now contains the string "Hello World\nFile Update\n"
     /// - The commit is authored and committed by: test <test@example.com>
     /// - The commit message is: "commit msg"
-    pub fn init_repo() -> Repository<Local> {
-        Repository::<Local>::new(test_data_dir()).expect("Failed to init local repository")
+    pub fn init_repo() -> git2::Repository {
+        git2::Repository::open(test_data_dir()).expect("Failed to open temp repo")
     }
 }

@@ -209,6 +209,18 @@ impl Repository<Remote> {
     }
 }
 
+// Define a helper function to be used in testing
+#[cfg(test)]
+impl Repository<Local> {
+    /// Instantiate a repository from a git2::Repository
+    pub fn from_repository(repo: git2::Repository) -> Self {
+        Self {
+            repo,
+            location: PhantomData::<Local>,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
