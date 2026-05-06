@@ -31,6 +31,10 @@ pub enum Error {
     #[error(transparent)]
     Git(#[from] git2::Error),
 
+    /// A regex related error
+    #[error(transparent)]
+    Regex(#[from] regex::Error),
+
     /// An abstraction of git-url-parse::GitUrlParseError
     #[error(transparent)]
     GitUrlError(#[from] GitUrlParseError),
@@ -52,7 +56,7 @@ mod common {
     use std::{fs, path::Path};
     use tempfile::TempDir;
 
-    pub const EXPECTED_MSG: &str = "commit msg";
+    pub const EXPECTED_MSG: &str = "commit msg\n\nCo-authored-by: John Doe <john@example.com>\nCo-authored-by: John Doe <john@example.com>\nCo-authored-by: Dave <dave@example.com>";
     pub const EXPECTED_ACTOR_NAME: &str = "test";
     pub const EXPECTED_ACTOR_EMAIL: &str = "test@example.com";
 
