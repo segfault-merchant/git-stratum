@@ -1,6 +1,25 @@
-use std::cell::OnceCell;
+use regex::Regex;
+use std::sync::LazyLock;
+use std::{cell::OnceCell, str::FromStr};
 
 use crate::{Actor, Error, ModifiedFile, Repository};
+
+/// Iterate all co-author matches in the haystack string formatting the return
+/// string to be formatted as "Name <Email>"
+fn iter_co_authors(haystack: &str) -> impl Iterator<Item = &str> {
+    const CO_AUTHOR_REGEX: &str = r"(?m)^Co-authored-by: (.*) <(.*?)>$";
+    // Regex should always compile hence bare unwrap.
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(CO_AUTHOR_REGEX).unwrap());
+
+    let prefix = "Co-authored-by:";
+    RE.find_iter(haystack).map(move |re_match| {
+        re_match
+            .as_str()
+            .strip_prefix(prefix)
+            .unwrap_or_default()
+            .trim()
+    })
+}
 
 /// A singular git commit for the repository being inspected
 pub struct Commit<'repo> {
@@ -25,13 +44,22 @@ impl<'repo> Commit<'repo> {
     }
 
     /// Return the commit message if it exists
-    pub fn msg(&self) -> Option<String> {
-        self.inner.message().map(|s| s.to_string())
+    pub fn msg(&self) -> Option<&str> {
+        self.inner.message()
     }
 
     /// Return the commit author
     pub fn author(&self) -> Actor {
         Actor::new(self.inner.author())
+    }
+
+    /// Return the co-authors as listed in the commit message
+    ///
+    /// Lazilly returning as an iterator means the co-authors, if entered more
+    /// than once, will **not** be de-duplicated.
+    pub fn co_authors(&self) -> impl Iterator<Item = Result<Actor, Error>> {
+        let commit_msg = self.msg().unwrap_or_default();
+        iter_co_authors(commit_msg).map(Actor::from_str)
     }
 
     /// Return the commit committer
@@ -140,7 +168,7 @@ mod test {
     fn test_msg() {
         commit_fixture(|_, commit| {
             // use mfile here
-            assert_eq!(commit.msg(), Some(EXPECTED_MSG.to_owned()));
+            assert_eq!(commit.msg(), Some(EXPECTED_MSG));
         });
     }
 
@@ -155,6 +183,15 @@ mod test {
                 commit.author().email().unwrap(),
                 EXPECTED_ACTOR_EMAIL.to_string()
             );
+        });
+    }
+
+    #[test]
+    fn test_co_authors() {
+        commit_fixture(|_, commit| {
+            for co_auth in commit.co_authors() {
+                assert!(co_auth.is_ok());
+            }
         });
     }
 
@@ -216,5 +253,14 @@ mod test {
                 .stats()
                 .expect("Failed to construct git2 Stats object");
         });
+    }
+
+    #[test]
+    fn test_iter_matches() {
+        let haystack = "Co-authored-by: John <john@example.com>";
+        assert_eq!(iter_co_authors(haystack).collect::<Vec<&str>>().len(), 1);
+
+        let haystack = "No matches expected";
+        assert_eq!(iter_co_authors(haystack).collect::<Vec<&str>>().len(), 0);
     }
 }
