@@ -106,6 +106,14 @@ impl<'repo> Commit<'repo> {
         self.inner.parent_count() > 1
     }
 
+    /// Checks if the current commit is reachable from "main" or "master"
+    pub fn in_main(&self) -> Result<bool, Error> {
+        let b = self
+            .local_branches()?
+            .collect::<Vec<Result<String, Error>>>();
+        Ok(b.contains(&Ok("main".to_string())) || b.contains(&Ok("master".to_string())))
+    }
+
     /// Return an iterator over the modified files that belong to a commit
     pub fn mod_files(&self) -> Result<impl Iterator<Item = ModifiedFile<'_>>, Error> {
         let diff = self.diff()?;
