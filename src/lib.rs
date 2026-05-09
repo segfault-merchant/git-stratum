@@ -25,7 +25,7 @@ pub fn clone_repository<P: AsRef<Path>>(
     Repository::<Remote>::new(url, dest)
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error {
     /// An abstraction of git2::Error to raise the error effectively
     #[error(transparent)]
