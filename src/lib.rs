@@ -52,7 +52,7 @@ pub enum Error {
 /// throughout the library
 #[cfg(test)]
 mod common {
-    use once_cell::sync::Lazy;
+    use std::sync::LazyLock;
     use std::{fs, path::Path};
     use tempfile::TempDir;
 
@@ -125,7 +125,7 @@ mod common {
 
     /// Lazily construct the test data into a temp dir that will last the length of
     /// a single modules test span
-    static TEST_DATA_DIR: Lazy<TempDir> = Lazy::new(|| {
+    static TEST_DATA_DIR: LazyLock<TempDir> = LazyLock::new(|| {
         let dir = TempDir::new().expect("Create temp dir");
         make_repo(&dir);
         dir

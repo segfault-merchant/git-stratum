@@ -4,8 +4,8 @@ use std::{
 };
 use tempfile::TempDir;
 
-use once_cell::sync::Lazy;
 use std::fs::File;
+use std::sync::LazyLock;
 use zip::ZipArchive;
 
 const ZIP_NAME: &str = "test-repos.zip";
@@ -49,7 +49,7 @@ fn unzip_archive(zip_path: &Path, dest: &Path) {
 
 /// Lazily construct the test data into a temp fir that will last the length of
 /// a single modules test span.
-static TEST_DATA_DIR: Lazy<TempDir> = Lazy::new(|| {
+static TEST_DATA_DIR: LazyLock<TempDir> = LazyLock::new(|| {
     let dir = TempDir::new().expect("Create temp dir");
     let zp = zip_path();
 
