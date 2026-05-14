@@ -40,13 +40,13 @@ impl Actor {
     }
 
     /// Return the actors name if it exists
-    pub fn name(&self) -> Option<String> {
-        self.inner.name().map(|s| s.to_string())
+    pub fn name(&self) -> Option<&str> {
+        self.inner.name()
     }
 
     /// Return the actors email if it exists
-    pub fn email(&self) -> Option<String> {
-        self.inner.email().map(|s| s.to_string())
+    pub fn email(&self) -> Option<&str> {
+        self.inner.email()
     }
 
     /// Return the timestamp of actor action if it exists
@@ -70,8 +70,8 @@ mod tests {
 
         let actor = Actor::new(sig);
 
-        assert_eq!(actor.name(), Some("test".to_string()));
-        assert_eq!(actor.email(), Some("test@example.com".to_string()));
+        assert_eq!(actor.name(), Some("test"));
+        assert_eq!(actor.email(), Some("test@example.com"));
         assert_eq!(actor.timestamp().unwrap().timestamp(), 1_600_000_000);
     }
 }
