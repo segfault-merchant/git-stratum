@@ -30,6 +30,16 @@ regex = "1.12.3"
 thiserror = "2.0.18"
 
 [dev-dependencies]
+criterion = "0.8.2"
 tempfile = "3.27.0"
 todo = "0.3.0"
 zip = "8.5.1"
+
+[[bench]]
+name = "repository"
+harness = false
+
+
+[[bench]]
+name = "commit"
+harness = false
