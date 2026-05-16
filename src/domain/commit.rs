@@ -149,6 +149,11 @@ impl<'repo> Commit<'repo> {
         git_folder.parent().unwrap()
     }
 
+    /// Return the project name based on the project path
+    pub fn project_name(&self) -> Option<&str> {
+        self.project_path().file_name().and_then(|s| s.to_str())
+    }
+
     //TODO: Should stats also be cached?
     /// Return the git2 Stats from the commits diff
     fn stats(&self) -> Result<git2::DiffStats, Error> {

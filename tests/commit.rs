@@ -103,3 +103,12 @@ fn test_project_path() {
         assert!(p.ends_with("small_repo"));
     })
 }
+
+#[test]
+fn test_project_name() {
+    repo_fixture("small_repo", |r| {
+        let commit = r.head().unwrap();
+
+        assert_eq!(commit.project_name(), Some("small_repo"));
+    })
+}
