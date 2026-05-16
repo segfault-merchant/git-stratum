@@ -39,7 +39,10 @@ zip = "8.5.1"
 name = "repository"
 harness = false
 
-
 [[bench]]
 name = "commit"
+harness = false
+
+[[bench]]
+name = "actor"
 harness = false
