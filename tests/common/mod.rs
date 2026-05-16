@@ -8,6 +8,8 @@ use std::fs::File;
 use std::sync::LazyLock;
 use zip::ZipArchive;
 
+use stratum::{Local, Repository};
+
 const ZIP_NAME: &str = "test-repos.zip";
 static MAIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
@@ -61,4 +63,15 @@ static TEST_DATA_DIR: LazyLock<TempDir> = LazyLock::new(|| {
 /// The path to the test data directory
 pub fn test_data_dir() -> &'static Path {
     TEST_DATA_DIR.path()
+}
+
+/// Open a test repository given it's relative path
+pub fn repo_fixture<F, R, P>(path: P, f: F) -> R
+where
+    F: FnOnce(&Repository<Local>) -> R,
+    P: AsRef<Path>,
+{
+    let path = test_data_dir().join(path);
+    let repo = Repository::<Local>::new(path).expect("Expected valid repository");
+    f(&repo)
 }
