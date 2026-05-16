@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.6](https://github.com/segfault-merchant/git-stratum/compare/v0.3.5...v0.3.6) - 2026-05-16
+
+### Added
+
+- benchmark from_str
+- define offset method
+
+### Fixed
+
+- capture the email string properly by slicing on index
+
+### Other
+
+- Merge branch 'main' into 41-actor-datetz
+
 ## [0.3.5](https://github.com/segfault-merchant/git-stratum/compare/v0.3.4...v0.3.5) - 2026-05-16
 
 ### Fixed
