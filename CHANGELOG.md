@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5](https://github.com/segfault-merchant/git-stratum/compare/v0.3.4...v0.3.5) - 2026-05-16
+
+### Fixed
+
+- update links
+- remove double title
+
+### Other
+
+- add badges to readme
+
 ## [0.3.4](https://github.com/segfault-merchant/git-stratum/compare/v0.3.3...v0.3.4) - 2026-05-14
 
 ### Added
