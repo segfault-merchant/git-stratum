@@ -1,5 +1,3 @@
-# Git Stratum
-
 <h1 align="center">
     Git Stratum
 </h1>
