@@ -20,13 +20,14 @@ impl FromStr for Actor {
     /// the probability of an actors signature being valid within a repository
     /// at the time of the unix time stamp is extremely unlikely  
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let name = s.split('<').next().unwrap().trim();
-        let email = s.split('<').nth(1).unwrap().trim_end_matches('>');
-        // As time is unknown but required, generate the UNIX timestamp and flag
-        // in the documentation.
-        let time = git2::Time::new(0, 0);
+        let start_idx = s.find('<').unwrap_or_default();
+        let end_idx = s.find('>').unwrap_or_default();
 
-        let sig = Signature::new(name, email, &time).map_err(Error::Git)?;
+        let time = git2::Time::new(0, 0);
+        //TODO: if start_idx+1 is > end_idx, panics. Occurs when no <> exists.
+        let sig = Signature::new(&s[..start_idx], &s[start_idx + 1..end_idx], &time)
+            .map_err(Error::Git)?;
+
         Ok(Self::new(sig))
     }
 }
@@ -107,5 +108,27 @@ mod tests {
         assert_eq!(actor.email(), Some("test@example.com"));
         assert_eq!(actor.timestamp().unwrap().timestamp(), 0);
         assert_eq!(actor.offset(), 0);
+    }
+
+    #[test]
+    fn test_malformed_from_str() {
+        let result = Actor::from_str("some nonsense <>");
+
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_extended_from_str() {
+        let actor = Actor::from_str("test <test@example.com> nonsense").unwrap();
+
+        assert_eq!(actor.name(), Some("test"));
+        assert_eq!(actor.email(), Some("test@example.com"));
+    }
+
+    #[test]
+    fn test_surname() {
+        let actor = Actor::from_str("test surname <email>").unwrap();
+
+        assert_eq!(actor.name(), Some("test surname"));
     }
 }
