@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4](https://github.com/segfault-merchant/git-stratum/compare/v0.4.3...v0.4.4) - 2026-05-17
+
+### Added
+
+- Move some basic tests to integration tests as part of future strategy
+
 ## [0.1.0](https://github.com/segfault-merchant/git-stratum/releases/tag/git-stratum-utils-v0.1.0) - 2026-05-17
 
 ### Added
