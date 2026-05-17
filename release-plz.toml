@@ -11,13 +11,12 @@ changelog_include = ["git-stratum"]
 changelog_path = "CHANGELOG.md"
 git_tag_name = "v{{ version }}"
 git_tag_enable = true
+git_release_name = "v{{ version }}"
 git_release_enable = true
 publish = true
 
 # Keep this crate local for now as it's only used for testing.
 [[package]]
 name = "git-stratum-utils"
-changelog_include = ["git-stratum-utils"]
-changelog_path = "CHANGELOG.md"
 git_release_enable = false
 publish = false
