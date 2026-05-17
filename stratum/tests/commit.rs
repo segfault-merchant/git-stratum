@@ -206,3 +206,13 @@ fn test_co_authors() {
         assert_eq!(author.email(), Some("some@body.org"));
     });
 }
+
+#[test]
+fn test_parent_objects() {
+    repo_fixture("small_repo", |r| {
+        let commit = r.single(SMALL_REPO_COMMIT).unwrap();
+
+        let parent = commit.parent_commits().next().unwrap().unwrap();
+        assert_eq!(parent.hash(), SMALL_REPO_COMMIT_PARENT);
+    });
+}

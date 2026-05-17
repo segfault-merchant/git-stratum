@@ -97,9 +97,20 @@ impl<'repo> Commit<'repo> {
         self.branch_iterator(flag)
     }
 
-    /// Retrun the hashes of all commit parents
+    /// Retrun the commit parents as objects
+    pub fn parent_commits(&self) -> impl Iterator<Item = Result<Commit<'_>, Error>> {
+        self.inner.parent_ids().map(|oid| {
+            self.ctx
+                .raw()
+                .find_commit(oid)
+                .map_err(Error::Git)
+                .map(|gitc| Commit::new(gitc, self.ctx))
+        })
+    }
+
+    /// Return the commit parents sha
     pub fn parents(&self) -> impl Iterator<Item = String> {
-        self.inner.parent_ids().map(|id| id.to_string())
+        self.inner.parent_ids().map(|p| p.to_string())
     }
 
     /// Return whether the commit is a merge commit
