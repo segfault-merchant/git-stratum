@@ -11,6 +11,7 @@ changelog_include = ["git-stratum"]
 changelog_path = "CHANGELOG.md"
 git_tag_name = "v{{ version }}"
 git_tag_enable = true
+git_release_name = "v{{ version }}"
 git_release_enable = true
 publish = true
 
