@@ -18,6 +18,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - update dependencies across the workspace
 
+## [0.4.3](https://github.com/segfault-merchant/git-stratum/compare/git-stratum-v0.4.2...git-stratum-v0.4.3) - 2026-05-17
+
+### Added
+
+- Define README properly for workspace
+- move common code into utilities crate for simpler reuse in main crate
+- move stratum to its own workspace crate
+
+### Fixed
+
+- update dependencies across the workspace
+
+### Other
+
+- Merge branch 'main' into mv-common-test-fns-to-utils
+- release v0.4.2
+
+## [0.1.0](https://github.com/segfault-merchant/git-stratum/releases/tag/git-stratum-utils-v0.1.0) - 2026-05-17
+
+### Added
+
+- move common code into utilities crate for simpler reuse in main crate
+- define future crates with gitkeep
+
+### Fixed
+
+- update dependencies across the workspace
+
 ## [0.4.3](https://github.com/segfault-merchant/git-stratum/compare/v0.4.2...v0.4.3) - 2026-05-17
 
 ### Added
