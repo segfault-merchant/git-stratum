@@ -63,6 +63,15 @@ impl<'c> ModifiedFile<'c> {
         })
     }
 
+    /// The number of lines removed in this modified file
+    pub fn deletions(&self) -> Result<usize, Error> {
+        // As per git2 docs second entry is deletions
+        Ok(match self.patch()? {
+            Some(p) => p.line_stats()?.2,
+            None => 0,
+        })
+    }
+
     /// Return the delta associated with the index
     fn delta(&self) -> Option<DiffDelta<'_>> {
         self.diff.get_delta(self.n)
@@ -72,7 +81,6 @@ impl<'c> ModifiedFile<'c> {
     ///
     /// Returns Ok(None) if the file is unchanged
     //TODO: https://github.com/segfault-merchant/git-stratum/issues/32
-    #[allow(dead_code)]
     fn patch(&self) -> Result<Option<&Patch<'_>>, Error> {
         let patch = Patch::from_diff(self.diff, self.n)?;
         Ok(self.cache.get_or_init(|| patch).as_ref())
