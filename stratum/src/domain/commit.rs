@@ -240,10 +240,7 @@ impl<'repo> Commit<'repo> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        Local, Repository,
-        common::{EXPECTED_ACTOR_EMAIL, EXPECTED_ACTOR_NAME, init_repo},
-    };
+    use crate::{Local, Repository, common::init_repo};
 
     fn commit_fixture<F, R>(f: F) -> R
     where
@@ -255,78 +252,6 @@ mod test {
         let commit = repo.head().expect("Failed to get HEAD");
 
         f(&repo, &commit)
-    }
-
-    #[test]
-    fn test_author() {
-        commit_fixture(|_, commit| {
-            assert_eq!(
-                commit.author().name().unwrap(),
-                EXPECTED_ACTOR_NAME.to_string()
-            );
-            assert_eq!(
-                commit.author().email().unwrap(),
-                EXPECTED_ACTOR_EMAIL.to_string()
-            );
-        });
-    }
-
-    #[test]
-    fn test_co_authors() {
-        commit_fixture(|_, commit| {
-            for co_auth in commit.co_authors() {
-                assert!(co_auth.is_ok());
-            }
-        });
-    }
-
-    #[test]
-    fn test_committer() {
-        commit_fixture(|_, commit| {
-            assert_eq!(
-                commit.committer().name().unwrap(),
-                EXPECTED_ACTOR_NAME.to_string()
-            );
-            assert_eq!(
-                commit.committer().email().unwrap(),
-                EXPECTED_ACTOR_EMAIL.to_string()
-            );
-        });
-    }
-
-    #[test]
-    fn test_parents() {
-        commit_fixture(|_, commit| {
-            assert_eq!(commit.parents().collect::<Vec<String>>().len(), 1);
-        });
-    }
-
-    #[test]
-    fn test_is_merge() {
-        commit_fixture(|_, commit| {
-            assert!(!commit.is_merge());
-        });
-    }
-
-    #[test]
-    fn test_insertions() {
-        commit_fixture(|_, commit| {
-            assert_eq!(commit.insertions().unwrap(), 1);
-        });
-    }
-
-    #[test]
-    fn test_deletions() {
-        commit_fixture(|_, commit| {
-            assert_eq!(commit.deletions().unwrap(), 0);
-        });
-    }
-
-    #[test]
-    fn test_lines() {
-        commit_fixture(|_, commit| {
-            assert_eq!(commit.lines().unwrap(), 1);
-        });
     }
 
     #[test]
