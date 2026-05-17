@@ -15,7 +15,13 @@ static MAIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 /// Find the zip located alongside the Cargo.toml
 fn zip_path() -> PathBuf {
-    PathBuf::from_str(MAIFEST_DIR).unwrap().join(ZIP_NAME)
+    let man_path = PathBuf::from_str(MAIFEST_DIR).unwrap();
+    let p = man_path.parent().unwrap().join(ZIP_NAME);
+
+    dbg!(&p);
+    assert!(p.exists());
+
+    p
 }
 
 /// Unzip the given zip file and deposit its contents directly into dest
@@ -61,7 +67,7 @@ static TEST_DATA_DIR: LazyLock<TempDir> = LazyLock::new(|| {
 });
 
 /// The path to the test data directory
-fn test_data_dir() -> &'static Path {
+pub fn test_data_dir() -> &'static Path {
     TEST_DATA_DIR.path()
 }
 

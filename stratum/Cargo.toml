@@ -1,0 +1,47 @@
+[package]
+name = "git-stratum"
+version = "0.4.1"
+authors = ["Jordan Morris <165378667+jordan-314@users.noreply.github.com>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["git", "mining", "repository", "commit"]
+repository = "https://github.com/jordan-314/git-stratum"
+documentation = "https://docs.rs/git-stratum"
+description = """
+High(er) level repository for mining git repositories, this library
+abstracts git2-rs for efficient processing.
+"""
+edition = "2024"
+exclude = [
+    "test-repos.zip"
+]
+
+[lib]
+name = "stratum"
+path = "src/lib.rs"
+
+[dependencies]
+chrono = "0.4.44"
+git-url-parse = "0.6.0"
+git2 = { version = "0.20.4", features = ["https", "ssh"] }
+openssl = { version = "0.10", features = ["vendored"] }
+regex = "1.12.3"
+thiserror = "2.0.18"
+
+[dev-dependencies]
+criterion = "0.8.2"
+tempfile = "3.27.0"
+todo = "0.3.0"
+zip = "8.5.1"
+
+[[bench]]
+name = "repository"
+harness = false
+
+[[bench]]
+name = "commit"
+harness = false
+
+[[bench]]
+name = "actor"
+harness = false
