@@ -3,7 +3,7 @@
 mod common;
 use std::path::PathBuf;
 
-use common::test_data_dir;
+use stratum_utils::test_data_dir;
 
 use stratum::{Local, Repository};
 

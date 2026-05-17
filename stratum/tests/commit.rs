@@ -1,22 +1,5 @@
-// Integration tests associated with repository.rs
-
 mod common;
-use std::path::Path;
-
-use common::test_data_dir;
-
-use stratum::{Local, Repository};
-
-/// Open a test repository given it's relative path
-fn repo_fixture<F, R, P>(path: P, f: F) -> R
-where
-    F: FnOnce(&Repository<Local>) -> R,
-    P: AsRef<Path>,
-{
-    let path = test_data_dir().join(path);
-    let repo = Repository::<Local>::new(path).expect("Expected valid repository");
-    f(&repo)
-}
+use common::repo_fixture;
 
 #[test]
 /// Should capture all local branches, no remote
