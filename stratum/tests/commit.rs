@@ -1,6 +1,8 @@
 mod common;
 use common::repo_fixture;
 
+const SMALL_REPO_COMMIT: &str = "1f99848edadfffa903b8ba1286a935f1b92b2845";
+
 #[test]
 /// Should capture all local branches, no remote
 fn test_branches() {
@@ -93,5 +95,23 @@ fn test_project_name() {
         let commit = r.head().unwrap();
 
         assert_eq!(commit.project_name(), Some("small_repo"));
+    })
+}
+
+#[test]
+fn test_commit_message() {
+    repo_fixture("small_repo", |r| {
+        let commit = r.single(SMALL_REPO_COMMIT).unwrap();
+
+        assert_eq!(commit.msg(), Some("add file3\n"));
+    })
+}
+
+#[test]
+fn test_commit_sha() {
+    repo_fixture("small_repo", |r| {
+        let commit = r.single(SMALL_REPO_COMMIT).unwrap();
+
+        assert_eq!(commit.hash(), SMALL_REPO_COMMIT.to_string());
     })
 }

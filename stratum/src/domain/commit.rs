@@ -242,7 +242,7 @@ mod test {
     use super::*;
     use crate::{
         Local, Repository,
-        common::{EXPECTED_ACTOR_EMAIL, EXPECTED_ACTOR_NAME, EXPECTED_MSG, init_repo},
+        common::{EXPECTED_ACTOR_EMAIL, EXPECTED_ACTOR_NAME, init_repo},
     };
 
     fn commit_fixture<F, R>(f: F) -> R
@@ -255,14 +255,6 @@ mod test {
         let commit = repo.head().expect("Failed to get HEAD");
 
         f(&repo, &commit)
-    }
-
-    #[test]
-    fn test_msg() {
-        commit_fixture(|_, commit| {
-            // use mfile here
-            assert_eq!(commit.msg(), Some(EXPECTED_MSG));
-        });
     }
 
     #[test]
