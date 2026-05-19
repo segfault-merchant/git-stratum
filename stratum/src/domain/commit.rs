@@ -178,7 +178,6 @@ impl<'repo> Commit<'repo> {
         self.project_path().file_name().and_then(|s| s.to_str())
     }
 
-    //TODO: Should stats also be cached?
     /// Return the git2 Stats from the commits diff
     fn stats(&self) -> Result<RcStat, Error> {
         let diff = self.diff()?;
