@@ -46,6 +46,10 @@ pub enum Error {
     /// An error associated with a bad path
     #[error("{0}")]
     PathError(String),
+
+    /// A cache related error
+    #[error("Cache mutex has been poisoned")]
+    PoisonedCache,
 }
 
 /// Common functionality that can be imported into any and all unit tests

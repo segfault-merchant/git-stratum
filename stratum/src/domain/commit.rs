@@ -1,9 +1,18 @@
-use regex::Regex;
-use std::path::Path;
-use std::sync::LazyLock;
-use std::{cell::OnceCell, str::FromStr};
+use std::{
+    num::NonZeroUsize,
+    path::Path,
+    rc::Rc,
+    str::FromStr,
+    sync::{LazyLock, Mutex},
+};
 
+use lru::LruCache;
+use regex::Regex;
+
+use crate::domain::{CachedDiff, CachedStat, RcDiff, RcStat};
 use crate::{Actor, Error, ModifiedFile, Repository};
+
+const CACHE_KEY: u8 = 0;
 
 /// Iterate all co-author matches in the haystack string formatting the return
 /// string to be formatted as "Name <Email>"
@@ -26,16 +35,21 @@ fn iter_co_authors(haystack: &str) -> impl Iterator<Item = &str> {
 pub struct Commit<'repo> {
     inner: git2::Commit<'repo>,
     ctx: &'repo Repository,
-    cache: OnceCell<git2::Diff<'repo>>,
+    diff_cache: Mutex<CachedDiff<'repo>>,
+    stat_cache: Mutex<CachedStat>,
 }
 
 impl<'repo> Commit<'repo> {
     /// Instantiate a new Commit object from a git2 commit
     pub fn new(commit: git2::Commit<'repo>, repository: &'repo Repository) -> Self {
+        let diff_cache = Mutex::new(LruCache::new(NonZeroUsize::new(1).unwrap()));
+        let stat_cache = Mutex::new(LruCache::new(NonZeroUsize::new(1).unwrap()));
+
         Self {
             inner: commit.to_owned(),
             ctx: repository,
-            cache: OnceCell::new(),
+            diff_cache,
+            stat_cache,
         }
     }
 
@@ -129,8 +143,7 @@ impl<'repo> Commit<'repo> {
     /// Return an iterator over the modified files that belong to a commit
     pub fn mod_files(&self) -> Result<impl Iterator<Item = ModifiedFile<'_>>, Error> {
         let diff = self.diff()?;
-
-        Ok((0..diff.deltas().len()).map(move |n| ModifiedFile::new(diff, n)))
+        Ok((0..diff.deltas().len()).map(move |n| ModifiedFile::new(Rc::clone(&diff), n)))
     }
 
     /// The number of insertions in the commit
@@ -167,30 +180,41 @@ impl<'repo> Commit<'repo> {
 
     //TODO: Should stats also be cached?
     /// Return the git2 Stats from the commits diff
-    fn stats(&self) -> Result<git2::DiffStats, Error> {
+    fn stats(&self) -> Result<RcStat, Error> {
         let diff = self.diff()?;
-        diff.stats().map_err(Error::Git)
+
+        let mut guard = self.stat_cache.lock().map_err(|_| Error::PoisonedCache)?;
+        let data = guard.try_get_or_insert(CACHE_KEY, || {
+            let stats = diff.stats().map_err(Error::Git)?;
+            Ok::<RcStat, Error>(Rc::new(stats))
+        })?;
+
+        Ok(Rc::clone(data))
     }
 
     /// Return the git diff for the current commit within the context of a
     /// repository.
-    //TODO: https://github.com/segfault-merchant/git-stratum/issues/32
-    fn diff(&self) -> Result<&git2::Diff<'repo>, Error> {
-        let diff = self.calculate_diff()?;
-        Ok(self.cache.get_or_init(|| diff))
+    fn diff(&self) -> Result<RcDiff<'repo>, Error> {
+        let mut guard = self.diff_cache.lock().map_err(|_| Error::PoisonedCache)?;
+        let data = guard.try_get_or_insert(CACHE_KEY, || self.calculate_diff())?;
+
+        Ok(Rc::clone(data))
     }
 
     /// Diff the current commit to it's parent(s) adjusting strategy based on the
     /// number of parents
-    fn calculate_diff(&self) -> Result<git2::Diff<'repo>, Error> {
+    fn calculate_diff(&self) -> Result<RcDiff<'repo>, Error> {
         let this_tree = self.inner.tree().ok();
         let parent_tree = self.resolve_parent_tree()?;
 
-        self.ctx
+        let diff = self
+            .ctx
             .raw()
             //TODO: Expose opts?
             .diff_tree_to_tree(parent_tree.as_ref(), this_tree.as_ref(), None)
-            .map_err(Error::Git)
+            .map_err(Error::Git)?;
+
+        Ok(Rc::new(diff))
     }
 
     /// Resolve to the correct parent tree changing strategies based on number
@@ -251,30 +275,6 @@ impl<'repo> Commit<'repo> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{Local, Repository, common::init_repo};
-
-    fn commit_fixture<F, R>(f: F) -> R
-    where
-        F: FnOnce(&Repository<Local>, &Commit) -> R,
-    {
-        let repo = init_repo();
-
-        let repo = Repository::<Local>::from_repository(repo);
-        let commit = repo.head().expect("Failed to get HEAD");
-
-        f(&repo, &commit)
-    }
-
-    #[test]
-    fn test_stat() {
-        commit_fixture(|_, commit| {
-            // Won't compile if return type is bad, stat otherwise checked in insertions
-            // and deletions test functions
-            let _: git2::DiffStats = commit
-                .stats()
-                .expect("Failed to construct git2 Stats object");
-        });
-    }
 
     #[test]
     fn test_iter_matches() {
