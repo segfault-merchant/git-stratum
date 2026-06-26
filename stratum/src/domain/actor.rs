@@ -20,11 +20,20 @@ impl FromStr for Actor {
     /// the probability of an actors signature being valid within a repository
     /// at the time of the unix time stamp is extremely unlikely  
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let start_idx = s.find('<').unwrap_or_default();
-        let end_idx = s.find('>').unwrap_or_default();
+        let malformed = || {
+            Error::Git(git2::Error::from_str(
+                "malformed actor: expected 'name <email>'",
+            ))
+        };
+
+        let start_idx = s.find('<').ok_or_else(malformed)?;
+        let end_idx = s.find('>').ok_or_else(malformed)?;
+
+        if start_idx >= end_idx {
+            return Err(malformed());
+        }
 
         let time = git2::Time::new(0, 0);
-        //TODO: if start_idx+1 is > end_idx, panics. Occurs when no <> exists.
         let sig = Signature::new(&s[..start_idx], &s[start_idx + 1..end_idx], &time)
             .map_err(Error::Git)?;
 
@@ -115,6 +124,36 @@ mod tests {
         let result = Actor::from_str("some nonsense <>");
 
         assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_from_str_no_brackets() {
+        // Regression for #76: input without angle brackets used to slice a
+        // reverse range and panic, rather than returning an error.
+        let result = Actor::from_str("anything with no angled brackets");
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_missing_close_bracket() {
+        let result = Actor::from_str("name <email");
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_missing_open_bracket() {
+        let result = Actor::from_str("name email>");
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_reversed_brackets() {
+        let result = Actor::from_str("name > <email");
+
+        assert!(result.is_err());
     }
 
     #[test]
